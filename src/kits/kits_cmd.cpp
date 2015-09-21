@@ -81,6 +81,9 @@ void KitsCommand::setupOptions()
             ->implicit_value(true),
             "Activate skew on transaction inputs (currently only 80:20 skew \
             is supported, i.e., 80% of access to 20% of data")
+        ("chkptInt", po::value<unsigned>(&opt_chkptInt)
+            ->default_value(0),
+            "Miliseconds interval at which a checkpoint is requested.")
     ;
     options.add(kits);
     setupSMOptions();
@@ -234,10 +237,21 @@ void KitsCommand::runBenchmarkSpec()
         }
     }
 
+    if(opt_chkptInt > 0) {
+        c = new chkpt_taker_thread((Environment*) shoreEnv, opt_chkptInt);
+        c->fork();
+    }
+
     doWork();
 
     if (opt_num_trxs > 0 || opt_duration > 0) {
         joinClients();
+    }
+
+     if(opt_chkptInt > 0) {
+        c->finished = true;
+        c->join();
+        delete c;
     }
 
     double delay = timer.time();

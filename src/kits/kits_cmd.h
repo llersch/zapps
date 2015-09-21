@@ -7,6 +7,35 @@
 class ShoreEnv;
 class sm_options;
 
+/*
+ * Thread object usied for the simple purpose of taking a checkpoint.
+ */
+class chkpt_taker_thread : public smthread_t
+{
+public:
+    chkpt_taker_thread(ShoreEnv* shoreEnv, unsigned _interval)
+        : shoreEnv(shoreEnv), interval(_interval), finished(false)
+    {}
+
+    virtual ~chkpt_taker_thread()
+    {}
+
+    bool finished;
+
+private:
+    ShoreEnv* shoreEnv;
+    unsigned interval;
+
+public:
+    virtual void run()
+    {
+        while(!finished) {
+            shoreEnv->checkpoint();
+            usleep(interval * 1000);
+        }
+    }
+};
+
 class KitsCommand : public Command
 {
 	using Command::setupOptions;
@@ -43,6 +72,7 @@ protected:
     unsigned opt_archWorkspace;
     bool opt_skew;
     bool opt_spread;
+    unsigned opt_chkptInt;
 
     MeasurementType mtype;
 
@@ -70,6 +100,7 @@ protected:
 private:
     std::vector<base_client_t*> clients;
     bool clientsForked;
+    chkpt_taker_thread* c;
 };
 
 #endif
