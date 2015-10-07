@@ -77,6 +77,8 @@ public:
         eof = btcursor->eof();
         if (eof) { return RCOK; }
 
+        eof = false;
+
         // Load key
         btcursor->key().serialize_as_nonkeystr(tuple._rep_key->_dest);
         tuple.load_key(tuple._rep_key->_dest, _pindex);
