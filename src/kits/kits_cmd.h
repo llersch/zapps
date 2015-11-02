@@ -43,6 +43,10 @@ protected:
     unsigned opt_archWorkspace;
     bool opt_skew;
     bool opt_spread;
+    bool opt_dCleaner;
+    bool opt_dCleanerMode;
+    unsigned opt_dCleanerInterval;
+    unsigned opt_dCleanerBufsize;
 
     MeasurementType mtype;
 

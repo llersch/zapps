@@ -81,6 +81,16 @@ void KitsCommand::setupOptions()
             ->implicit_value(true),
             "Activate skew on transaction inputs (currently only 80:20 skew \
             is supported, i.e., 80% of access to 20% of data")
+        ("dCleaner", po::value<bool>(&opt_dCleaner)->default_value(false)
+            ->implicit_value(true),
+            "Activate decoupled cleaner based on log archive.")
+        ("dCleanerEager", po::value<bool>(&opt_dCleanerMode)->default_value(false)
+            ->implicit_value(true),
+            "Acivate eager mode for decoupled cleaner.")
+        ("dCleanerInterval", po::value<unsigned>(&opt_dCleanerInterval)->default_value(10000),
+            "Interval between eager decoupled cleaner wakes proactively.")
+        ("dCleanerBufsize", po::value<unsigned>(&opt_dCleanerBufsize)->default_value(16),
+            "Size of the internal workspace used by the decoupled cleaner (in pages).")
     ;
     options.add(kits);
     setupSMOptions();
@@ -397,6 +407,11 @@ void KitsCommand::loadOptions(sm_options& options)
         options.set_int_option("sm_archiver_workspace_size",
                 opt_archWorkspace * 1048576);
         mkdirs(archdir);
+
+        options.set_bool_option("sm_decoupled_cleaner", opt_dCleaner);
+        options.set_bool_option("sm_decoupled_cleaner_mode", opt_dCleanerMode);
+        options.set_int_option("sm_decoupled_cleaner_interval", opt_dCleanerInterval);
+        options.set_int_option("sm_decoupled_cleaner_bufsize", opt_dCleanerBufsize);
     }
 
     // ticker always turned on
