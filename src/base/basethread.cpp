@@ -122,7 +122,8 @@ void basethread_t::start_other()
         cerr << "OK" << endl;
 
         cerr << "Initializing checkpoint manager ... ";
-        smlevel_0::chkpt = new chkpt_m();
+        bool decoupled_chkpt = _options.get_bool_option("sm_decoupled_chkpt", false);
+        smlevel_0::chkpt = new chkpt_m(decoupled_chkpt);
         cerr << "OK" << endl;
 
         cerr << "Initializing b-tree manager ... ";

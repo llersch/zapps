@@ -81,6 +81,9 @@ void KitsCommand::setupOptions()
             ->implicit_value(true),
             "Activate skew on transaction inputs (currently only 80:20 skew \
             is supported, i.e., 80% of access to 20% of data")
+        ("dChkpt", po::value<bool>(&opt_decoupledChkpt)->default_value(false)
+            ->implicit_value(true),
+            "Miliseconds interval at which a checkpoint is requested.")
         ("chkptInt", po::value<unsigned>(&opt_chkptInt)
             ->default_value(0),
             "Miliseconds interval at which a checkpoint is requested.")
@@ -413,8 +416,11 @@ void KitsCommand::loadOptions(sm_options& options)
         mkdirs(archdir);
     }
 
+    options.set_bool_option("sm_decoupled_chkpt", opt_decoupledChkpt);
+
     // ticker always turned on
     options.set_bool_option("sm_ticker_enable", true);
+    options.set_bool_option("sm_ticker_msec", true);
 
     if (opt_bufsize <= 0) {
         // TODO: default size for buffer pool may depend on SF and benchmark

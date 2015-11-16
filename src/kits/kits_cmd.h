@@ -72,6 +72,7 @@ protected:
     unsigned opt_archWorkspace;
     bool opt_skew;
     bool opt_spread;
+    bool opt_decoupledChkpt;
     unsigned opt_chkptInt;
 
     MeasurementType mtype;
