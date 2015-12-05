@@ -939,6 +939,12 @@ int ShoreEnv::checkpoint()
     return 0;
 }
 
+int ShoreEnv::wakeup_cleaners()
+{
+    _pssm->wakeup_cleaners();
+    return 0;
+}
+
 void ShoreEnv::activate_archiver()
 {
     if (_enable_archiver) {

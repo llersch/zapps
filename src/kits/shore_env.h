@@ -643,6 +643,7 @@ public:
 
     // Takes a checkpoint (forces dirty pages)
     int checkpoint();
+    int wakeup_cleaners();
 
     void activate_archiver();
 

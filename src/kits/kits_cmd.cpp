@@ -91,6 +91,8 @@ void KitsCommand::setupOptions()
             "Interval between eager decoupled cleaner wakes proactively.")
         ("dCleanerBufsize", po::value<unsigned>(&opt_dCleanerBufsize)->default_value(16),
             "Size of the internal workspace used by the decoupled cleaner (in pages).")
+        ("cleanerInt", po::value<unsigned>(&opt_cleanerInt)->default_value(10000),
+            "Activation interval from cleaner")
     ;
     options.add(kits);
     setupSMOptions();
@@ -244,10 +246,21 @@ void KitsCommand::runBenchmarkSpec()
         }
     }
 
+    if(opt_cleanerInt > 0) {
+        cl = new cleaner_activator_thread((Environment*) shoreEnv, opt_cleanerInt);
+        cl->fork();
+    }
+
     doWork();
 
     if (opt_num_trxs > 0 || opt_duration > 0) {
         joinClients();
+    }
+
+    if(opt_cleanerInt > 0) {
+        cl->finished = true;
+        cl->join();
+        delete cl;
     }
 
     double delay = timer.time();
@@ -416,6 +429,7 @@ void KitsCommand::loadOptions(sm_options& options)
 
     // ticker always turned on
     options.set_bool_option("sm_ticker_enable", true);
+    options.set_bool_option("sm_ticker_msec", true);
 
     if (opt_bufsize <= 0) {
         // TODO: default size for buffer pool may depend on SF and benchmark

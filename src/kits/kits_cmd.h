@@ -7,6 +7,32 @@
 class ShoreEnv;
 class sm_options;
 
+class cleaner_activator_thread : public smthread_t
+{
+public:
+    cleaner_activator_thread(ShoreEnv* shoreEnv, unsigned _interval)
+        : shoreEnv(shoreEnv), interval(_interval), finished(false)
+    {}
+
+    virtual ~cleaner_activator_thread()
+    {}
+
+    bool finished;
+
+private:
+    ShoreEnv* shoreEnv;
+    unsigned interval;
+
+public:
+    virtual void run()
+    {
+        while(!finished) {
+            shoreEnv->wakeup_cleaners();
+            usleep(interval * 1000);
+        }
+    }
+};
+
 class KitsCommand : public Command
 {
 	using Command::setupOptions;
@@ -47,6 +73,7 @@ protected:
     bool opt_dCleanerMode;
     unsigned opt_dCleanerInterval;
     unsigned opt_dCleanerBufsize;
+    unsigned opt_cleanerInt;
 
     MeasurementType mtype;
 
@@ -74,6 +101,7 @@ protected:
 private:
     std::vector<base_client_t*> clients;
     bool clientsForked;
+    cleaner_activator_thread* cl;
 };
 
 #endif
